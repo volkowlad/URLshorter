@@ -1,11 +1,12 @@
 package main
 
 import (
+	"github.com/joho/godotenv"
 	"log/slog"
 	"os"
 	"url_rest_api/internal/config"
 	"url_rest_api/internal/logger/sl"
-	"url_rest_api/internal/storage/sqlite"
+	"url_rest_api/internal/storage/postgre"
 )
 
 const (
@@ -22,13 +23,23 @@ func main() {
 	log.Info("starting", slog.String("env", cfg.Env))
 	log.Debug("debug messages are enabled")
 
-	storage, err := sqlite.New(cfg.StoragePath)
+	if err := godotenv.Load(); err != nil {
+		log.Error("Error loading .env file")
+	}
+	db, err := postgre.InitPostgre(postgre.ConfigDB{
+		Host:     cfg.DB.Host,
+		Port:     cfg.DB.Port,
+		User:     cfg.DB.User,
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   cfg.DB.DBName,
+		SSLMode:  cfg.DB.SSLMode,
+	})
 	if err != nil {
 		log.Error("failed to init storage", sl.Err(err))
 		os.Exit(1)
 	}
 
-	_ = storage
+	_ = db
 	// TODO:init router: chi, render
 
 	// TODO: run server
