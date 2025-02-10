@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	"log/slog"
 	"os"
@@ -28,8 +26,7 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Error("Error loading .env file")
 	}
-
-	storage, err := postgre.InitPostgre(postgre.ConfigDB{
+	db, err := postgre.InitPostgre(postgre.ConfigDB{
 		Host:     cfg.DB.Host,
 		Port:     cfg.DB.Port,
 		User:     cfg.DB.User,
@@ -42,14 +39,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	_ = storage
-
-	router := chi.NewRouter()
-
-	router.Use(middleware.RequestID)
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
-	router.Use(middleware.URLFormat)
+	_ = db
+	// TODO:init router: chi, render
 
 	// TODO: run server
 }

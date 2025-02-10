@@ -4,6 +4,6 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o main.
+RUN cd cmd/app; go build -o /pivo .
 EXPOSE 8080
-CMD ["./main"]
+CMD ["/pivo"]
