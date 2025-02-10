@@ -1,16 +1,19 @@
 package save
 
 import (
+	"errors"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
 	"url_rest_api/internal/http-server/api/response"
+	"url_rest_api/internal/lib/random"
 	"url_rest_api/internal/logger/sl"
+	"url_rest_api/internal/storage"
 )
 
-	// TODO: move to config/bd
+// TODO: move to config/bd
 const (
 	aliasLength = 5
 )
@@ -61,7 +64,30 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 
 		alias := req.Alias
 		if alias == "" {
-			alias = 
+			alias = random.RandomURL(aliasLength)
 		}
+
+		id, err := urlSaver.SaveURL(req.URL, alias)
+		if errors.Is(err, storage.ErrURLExist) {
+			log.Info("url already exists", slog.String("url", req.URL))
+
+			render.JSON(w, r, response.Error("url already exists"))
+
+			return
+		}
+		if err != nil {
+			log.Error("failed to save url", sl.Err(err))
+
+			render.JSON(w, r, response.Error("failed to save url"))
+
+			return
+		}
+
+		log.Info("saved url", slog.Int64("id", id))
+
+		render.JSON(w, r, Response{
+			Response: response.OK(),
+			Alias:    alias,
+		})
 	}
 }
