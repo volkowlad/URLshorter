@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"url_rest_api/internal/storage"
+
+	_ "github.com/lib/pq"
 )
 
 type Storage struct {
@@ -22,21 +24,21 @@ type ConfigDB struct {
 func InitPostgre(cfg ConfigDB) (*Storage, error) {
 	dsn := fmt.Sprintf(`
 		host=%s 
-		port=%d
+		port=%s
 		user=%s 
 		password=%s 
 		dbname=%s
-		ssmode=%S
+		sslmode=%s
 		`, cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode)
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		fmt.Errorf("cannot open database: %w", err)
+		return nil, fmt.Errorf("cannot open database: %w", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		fmt.Errorf("cannot ping database: %w", err)
+		return nil, fmt.Errorf("cannot ping database: %w", err)
 	}
 
 	return &Storage{db: db}, nil

@@ -6,9 +6,10 @@ http_server:
   address: "localhost:8080"
   timeout: 4s
   idle_timeout: 60s
+  username: "vlad"
 
 db:
-  username: "postgres"
+  user: "postgres"
   host: "localhost"
   port: "5432"
   dbname: "postgres"
