@@ -57,7 +57,7 @@ func main() {
 			cfg.HTTPServer.UserName: os.Getenv("MY_SERVER_PASSWORD"),
 		}))
 
-		router.Post("/", save.New(log, db))
+		r.Post("/", save.New(log, db))
 
 		// TODO: delete
 	})
@@ -81,8 +81,6 @@ func main() {
 	}
 
 	log.Info("server is stopped")
-
-	// TODO: run server
 }
 
 func setupLogger(env string) *slog.Logger {

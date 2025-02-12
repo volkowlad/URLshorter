@@ -45,28 +45,28 @@ func InitPostgre(cfg ConfigDB) (*Storage, error) {
 }
 
 // возвращаем индекс созданной записи
-func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
-	stmt, err := s.db.Prepare("INSERT INTO url(url, alias) VALUES (?, ?)")
+func (s *Storage) SaveURL(urlToSave string, alias string) error {
+	stmt, err := s.db.Prepare("INSERT INTO url(url, alias) VALUES ($1, $2)")
 	if err != nil {
-		return 0, fmt.Errorf("cannot SaveURL: %w", err)
+		return fmt.Errorf("cannot SaveURL1: %w", err)
 	}
 
-	res, err := stmt.Exec(urlToSave, alias)
+	_, err = stmt.Exec(urlToSave, alias)
 	if err != nil {
 		// TODO: refactor for PostgreSQL constraints (уникальность alias)
-		return 0, fmt.Errorf("cannot SaveURL: %w", err)
+		return fmt.Errorf("cannot SaveURL2: %w", err)
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("cannot SaveURL: %w", err)
-	}
-
-	return id, nil
+	//id, err := res.LastInsertId()
+	//if err != nil {
+	//	return 0, fmt.Errorf("cannot SaveURL3: %w", err)
+	//}
+	return nil
+	//return id, nil
 }
 
 func (s *Storage) GetURL(aliasGet string) (string, error) {
-	stmt, err := s.db.Prepare("SELECT url FROM url WHERE alias=?")
+	stmt, err := s.db.Prepare("SELECT url FROM url WHERE alias=$1")
 	if err != nil {
 		return "", fmt.Errorf("cannot GetURL: %w", err)
 	}
